@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --accent: #e8a24a;
+    --accent-glow: rgba(232, 162, 74, 0.4);
+    --bg-dark: #101012;
+    --bg-surface: #17171a;
+    --bg-card: rgba(23, 23, 26, 0.7);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --font-display: 'Syne', sans-serif;
+    --font-heading: 'Unbounded', sans-serif;
+    --font-sans: 'Inter', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-dark);
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: #e5e7eb;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    position: relative;
+    cursor: default;
+  }
+
+  /* Custom sleek scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #101012;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2b2b30;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #e8a24a;
+  }
+}
+
+/* Typography Helpers */
+.font-display {
+  font-family: 'Syne', sans-serif;
+}
+.font-accent {
+  font-family: 'Unbounded', sans-serif;
+}
+
+/* Film Grain Texture */
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Radial Glow Effects */
+.radial-halo {
+  background: radial-gradient(circle at 50% 50%, var(--halo-color, rgba(232, 162, 74, 0.18)) 0%, rgba(16, 16, 18, 0) 70%);
+}
+
+.glass-panel {
+  background: rgba(23, 23, 26, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Spotlight Hover Effect */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  top: var(--spotlight-y, -1000px);
+  left: var(--spotlight-x, -1000px);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle closest-side, rgba(232, 162, 74, 0.12), transparent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* Lenis Recommended CSS */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
