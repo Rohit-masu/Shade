@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { useLenis } from './hooks/useLenis'
-import { useImagePreloader } from './hooks/useImagePreloader'
-import { hero } from './data/siteData'
+import { useFakeProgress } from './hooks/useFakeProgress'
 
 // Components
 import CustomCursor from './components/CustomCursor'
 import Loader from './components/Loader'
 import Navbar from './components/Navbar'
-import HeroScroll from './components/HeroScroll'
+import Experience3D from './components/Experience3D'
 import FeatureStrip from './components/FeatureStrip'
 import ProductShowcase from './components/ProductShowcase'
 import LensTech from './components/LensTech'
@@ -20,13 +19,8 @@ export default function App() {
   // 1. Initialize Lenis smooth scroll synchronized with GSAP ScrollTrigger
   useLenis()
 
-  // 2. Preload Hero frame sequence
-  const { images, progress, isLoaded, hasRealFrames } = useImagePreloader({
-    basePath: hero.framePath,
-    frameCount: hero.frameCount,
-    extension: hero.frameExt,
-    padLength: hero.padLength,
-  })
+  // 2. Loader progress (3D hero is procedural, so nothing heavy to preload yet)
+  const { progress, isLoaded } = useFakeProgress()
 
   const [loaderComplete, setLoaderComplete] = useState(false)
 
@@ -47,8 +41,8 @@ export default function App() {
       {/* Sticky Blur Navbar */}
       <Navbar />
 
-      {/* Scroll-Driven Pinned 3D Hero */}
-      <HeroScroll images={images} hasRealFrames={hasRealFrames} />
+      {/* Scroll-driven 3D experience: assemble → colorways → anatomy → lineup */}
+      <Experience3D ready={loaderComplete} />
 
       {/* Value Proposition Feature Strip */}
       <FeatureStrip />

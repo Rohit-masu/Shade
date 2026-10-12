@@ -125,3 +125,40 @@ html.lenis, html.lenis body {
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
 }
+
+/* ---------- Experience3D ---------- */
+.anatomy-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transform: translate(-6px, -50%);
+  transition: opacity 0.2s linear;
+}
+.anatomy-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--theme-accent, #e8a24a);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08), 0 0 16px var(--theme-accent, #e8a24a);
+}
+.anatomy-text {
+  font: 500 11px/1 'Inter', sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  background: rgba(10, 10, 12, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+/* Re-keyed headings (theme / product name) blur in when they change */
+.theme-name {
+  animation: theme-name-in 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes theme-name-in {
+  from { opacity: 0; transform: translateY(16px); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: none; }
+}

@@ -19,6 +19,53 @@ export const hero = {
   fallbackImage: "/hero-sunglasses.png",
 };
 
+// Colorways the 3D hero model morphs through while scrolling (Experience3D, chapter 2)
+export const themes3d = [
+  {
+    id: "amber",
+    name: "Cinematic Amber",
+    frame: { color: "#1c140e", metalness: 0.15, roughness: 0.28 },
+    lens: { color: "#e8a24a", metalness: 0.55, opacity: 0.82 },
+    bg: "#140e08",
+    accent: "#e8a24a",
+  },
+  {
+    id: "obsidian",
+    name: "Matte Obsidian",
+    frame: { color: "#0c0c0e", metalness: 0.05, roughness: 0.75 },
+    lens: { color: "#3a3f47", metalness: 0.8, opacity: 0.9 },
+    bg: "#0b0c0f",
+    accent: "#cbd5e1",
+  },
+  {
+    id: "gold",
+    name: "Brushed 24K Gold",
+    frame: { color: "#d4af37", metalness: 1, roughness: 0.25 },
+    lens: { color: "#8a3f18", metalness: 0.6, opacity: 0.85 },
+    bg: "#16110a",
+    accent: "#d4af37",
+  },
+  {
+    id: "emerald",
+    name: "Forest Emerald",
+    frame: { color: "#0f2219", metalness: 0.2, roughness: 0.3 },
+    lens: { color: "#10b981", metalness: 0.85, opacity: 0.85 },
+    bg: "#06120d",
+    accent: "#10b981",
+  },
+];
+
+// Products that slide in on the 3D lineup carousel (Experience3D, chapter 4)
+export const lineup3d = [
+  { id: "green-wayfarer", style: "wayfarer", name: "Emerald Horizon", price: 3599 },
+  { id: "gold-aviator", style: "aviator", name: "Aero Mirage Gold", price: 4199,
+    frame: { color: "#d4af37", metalness: 1, roughness: 0.22 },
+    lens: { color: "#7a3a16", metalness: 0.6, opacity: 0.85 } },
+  { id: "silver-round", style: "round", name: "Komorebi Round", price: 3699,
+    frame: { color: "#c0c6cf", metalness: 1, roughness: 0.2 },
+    lens: { color: "#1e3a5f", metalness: 0.85, opacity: 0.85 } },
+];
+
 export const features = [
   {
     icon: "ShieldCheck",
