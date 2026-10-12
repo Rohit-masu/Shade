@@ -40,6 +40,7 @@ function makeLensMaterial(cfg) {
     opacity: cfg?.opacity ?? 0.85,
     clearcoat: 1,
     envMapIntensity: 1.8,
+    vertexColors: true, // lens geometry carries a top-dark → bottom-light gradient
   })
 }
 
@@ -151,8 +152,9 @@ function Scene({ anim, stageRef, glowRef }) {
       {/* Studio reflections built from light panels — no HDR download needed */}
       <Environment resolution={256} frames={1}>
         <Lightformer form="rect" intensity={3} position={[0, 4, -2]} scale={[10, 1.5, 1]} />
-        <Lightformer form="rect" intensity={2} position={[-5, 1, 1]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
-        <Lightformer form="rect" intensity={2} position={[5, 1, 1]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
+        {/* Cinematic rim: warm amber from the left, cool blue from the right (as in hero-sunglasses.png) */}
+        <Lightformer form="rect" intensity={3} color="#ff9a3c" position={[-5, 1, 1]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
+        <Lightformer form="rect" intensity={3} color="#4d7dff" position={[5, 1, 1]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
         <Lightformer form="ring" intensity={4} position={[0, 0, 5]} scale={2} />
       </Environment>
 
@@ -179,7 +181,8 @@ export default function Experience3D({ ready }) {
   const stageRef = useRef(null)
   const glowRef = useRef(null)
   const headlineRef = useRef(null)
-  const anim = useRef({ intro: 0, explode: 0, x: 0.12, y: 0.35, scale: 0.85, rotY: -0.35, rotX: 0.12, theme: 0, lineup: 0, focus: 0 })
+  // Starts in a 3/4 pose, as in public/hero-sunglasses.png
+  const anim = useRef({ intro: 0, explode: 0, x: 0.12, y: 0.35, scale: 0.85, rotY: 0.5, rotX: 0.2, theme: 0, lineup: 0, focus: 0 })
 
   const [chapter, setChapter] = useState(0)
   const [themeIdx, setThemeIdx] = useState(0)
@@ -207,7 +210,7 @@ export default function Experience3D({ ready }) {
       })
 
       // 01 — Hero: pair spins a full turn and glides right, giant wordmark drifts
-      tl.to(a, { rotY: Math.PI * 2 - 0.35, x: 0.2, y: 0, scale: 0.8, ease: 'power1.inOut', duration: 1.5 }, 0)
+      tl.to(a, { rotY: Math.PI * 2 + 0.5, x: 0.2, y: 0, scale: 0.8, ease: 'power1.inOut', duration: 1.5 }, 0)
         .to(q('.hero-copy'), { autoAlpha: 0, y: -60, filter: 'blur(8px)', duration: 0.6 }, 0)
         .to(q('.hero-wordmark'), { scale: 1.25, autoAlpha: 0, duration: 1.4 }, 0)
 
@@ -225,7 +228,7 @@ export default function Experience3D({ ready }) {
         .to(q('.chapter-anatomy'), { autoAlpha: 0, y: -30, duration: 0.3 }, 7.1)
 
       // 04 — Lineup: hero pair shifts into the carousel, other products slide in
-        .to(a, { lineup: 1, rotY: `-=${0.7}`, ease: 'power2.inOut', duration: 1 }, 7.4)
+        .to(a, { lineup: 1, rotY: `-=${0.7 + 0.5}`, ease: 'power2.inOut', duration: 1 }, 7.4)
         .fromTo(q('.chapter-lineup'), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 7.9)
         .to(a, { focus: lineup3d.length - 1, ease: 'power1.inOut', duration: 1.8 }, 8.4)
         .to({}, { duration: 0.3 }) // short hold before the section scrolls away

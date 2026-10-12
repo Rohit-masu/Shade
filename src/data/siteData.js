@@ -57,7 +57,10 @@ export const themes3d = [
 
 // Products that slide in on the 3D lineup carousel (Experience3D, chapter 4)
 export const lineup3d = [
-  { id: "green-wayfarer", style: "classic", name: "Emerald Horizon", price: 3599 },
+  { id: "green-wayfarer", style: "hero", name: "Emerald Horizon", price: 3599 },
+  { id: "black-wayfarer", style: "classic", name: "Obsidian Classic", price: 3299,
+    frame: { color: "#0d0d0f", metalness: 0.1, roughness: 0.15 },
+    lens: { color: "#4b5a4a", metalness: 0.7, opacity: 0.9 } },
   { id: "brown-tortoise", style: "bold", name: "Havana Tortoise", price: 3899,
     frame: { color: "#4a2410", metalness: 0.1, roughness: 0.25 },
     lens: { color: "#b4691f", metalness: 0.55, opacity: 0.85 } },

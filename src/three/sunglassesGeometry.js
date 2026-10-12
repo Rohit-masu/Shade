@@ -11,7 +11,8 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
  *   { key, meshes: [{ geometry, mat: 'frame'|'lens'|'metal', position?, rotation?, scale? }],
  *     pos, dir, rot, delay, mirror?, temple?: side, labels?: [{ text, pos }] }
  *
- * Styles: 'classic' (Wayfarer-type, one-piece front), 'bold', 'aviator', 'round'.
+ * Styles: 'hero' (rectangular classic, matches public/hero-sunglasses.png),
+ * 'classic' (Wayfarer-type), 'bold', 'aviator', 'round'.
  */
 
 const sgnPow = (v, p) => Math.sign(v) * Math.pow(Math.abs(v), p)
@@ -34,62 +35,80 @@ function bend(geometry, fn) {
 }
 
 /* ================================================================== */
-/*  CLASSIC — one-piece acetate front, keyhole bridge, face-form wrap  */
+/*  ACETATE — one-piece front, keyhole bridge, face-form wrap          */
+/*  'hero'    : rectangular classic from public/hero-sunglasses.png    */
+/*  'classic' : Wayfarer-type with a heavy brow                        */
 /* ================================================================== */
-const C = {
-  cx: 0.7, // lens centre
-  a: 0.5, // lens half width
-  b: 0.35, // lens half height
-  rimSide: 0.065,
-  rimBrow: 0.155, // thick brow line
-  depth: 0.05,
-  bevel: 0.026,
-  wrap: 0.07, // face-form curve: z -= wrap * x²
-  seg: 160,
+const ACETATE = {
+  hero: {
+    cx: 0.72, a: 0.52, b: 0.39, n: 3.8, // lens centre, half width/height, squareness
+    chinTaper: 0.14, chinTaperInner: 0.06, browRise: 0.03,
+    rimSide: 0.055, rimBrow: 0.1, wing: 0.09, depth: 0.05, bevel: 0.024, wrap: 0.04,
+    bridgeTop: 0.3, bridgeBottom: 0.53, noseArch: 0.3, templeH: 0.105,
+    trim: 'bar', gradient: [0.28, 1], lensLabel: 'Gradient polarized lens',
+  },
+  classic: {
+    cx: 0.7, a: 0.5, b: 0.35, n: 3.4,
+    chinTaper: 0.26, chinTaperInner: 0.09, browRise: 0.07,
+    rimSide: 0.065, rimBrow: 0.155, wing: 0, depth: 0.05, bevel: 0.026, wrap: 0.07,
+    bridgeTop: 0.31, bridgeBottom: 0.545, noseArch: 0.34, templeH: 0.085,
+    trim: 'rivet', gradient: [0.6, 1], lensLabel: 'Polarized G-15 lens',
+  },
 }
-const frontZ = (x) => -C.wrap * x * x
+const SEG = 160
 
-// Right lens outline in local space (outer/temple side = +x), index i ↔ angle 2πi/seg
-function classicLens() {
-  const pts = []
-  for (let i = 0; i < C.seg; i++) {
-    const t = (i / C.seg) * Math.PI * 2
-    const cx = sgnPow(Math.cos(t), 2 / 3.4)
-    const cy = sgnPow(Math.sin(t), 2 / 3.4)
-    let x = C.a * cx
-    let y = C.b * cy
-    if (cy < 0) x = x * (1 - 0.26 * -cy * (cx > 0 ? 1 : 0.35)) // trapezoid: chin tapers, mostly on the outer side
-    if (cy > 0) y += 0.07 * ((cx + 1) / 2) * cy // top edge rises toward the temple
-    pts.push(new THREE.Vector2(x, y))
+// Lens gradient as vertex colours (multiplied with the lens material colour): dark top → light bottom
+function addGradient(geometry, [top, bottom], yMin, yMax) {
+  const p = geometry.attributes.position
+  const colors = new Float32Array(p.count * 3)
+  for (let i = 0; i < p.count; i++) {
+    const t = Math.min(Math.max((p.getY(i) - yMin) / (yMax - yMin), 0), 1)
+    const v = bottom + (top - bottom) * t * t * (3 - 2 * t)
+    colors.set([v, v, v], i * 3)
   }
-  return pts
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+  return geometry
 }
 
-function classicRim(p) {
-  const up = Math.max(p.y / C.b, 0)
-  const amount = C.rimSide + (C.rimBrow - C.rimSide) * Math.pow(up, 1.4)
-  const len = p.length()
-  return p.clone().multiplyScalar((len + amount) / len)
-}
+function buildAcetate(cfg) {
+  const frontZ = (x) => -cfg.wrap * x * x
 
-function buildClassic() {
-  const inner = classicLens()
-  const outer = inner.map(classicRim)
-  const toGlobal = (p) => new THREE.Vector2(p.x + C.cx, p.y)
+  // Right lens outline in local space (outer/temple side = +x), index i ↔ angle 2πi/SEG
+  const inner = []
+  for (let i = 0; i < SEG; i++) {
+    const t = (i / SEG) * Math.PI * 2
+    const cx = sgnPow(Math.cos(t), 2 / cfg.n)
+    const cy = sgnPow(Math.sin(t), 2 / cfg.n)
+    let x = cfg.a * cx
+    let y = cfg.b * cy
+    if (cy < 0) x *= 1 - -cy * (cx > 0 ? cfg.chinTaper : cfg.chinTaperInner) // chin tapers, mostly on the outer side
+    if (cy > 0) y += cfg.browRise * ((cx + 1) / 2) * cy // top edge rises toward the temple
+    inner.push(new THREE.Vector2(x, y))
+  }
+  const rim = (p) => {
+    const up = Math.max(p.y / cfg.b, 0)
+    // wing: extra width at the upper-outer corner where the hinge and trim sit
+    const wing = cfg.wing * Math.pow(Math.max(p.x / cfg.a, 0), 2) * Math.min(Math.max(p.y / cfg.b + 0.3, 0), 1)
+    const amount = cfg.rimSide + (cfg.rimBrow - cfg.rimSide) * Math.pow(up, 1.4) + wing
+    const len = p.length()
+    return p.clone().multiplyScalar((len + amount) / len)
+  }
+  const outer = inner.map(rim)
+  const toGlobal = (p) => new THREE.Vector2(p.x + cfg.cx, p.y)
 
   // Right outer arc runs clockwise from the upper-inner corner, round the temple side,
   // to the lower-inner corner; the bridge replaces the skipped inner stretch.
-  const i1 = Math.round(C.seg * 0.31)
-  const i2 = Math.round(C.seg * 0.545)
+  const i1 = Math.round(SEG * cfg.bridgeTop)
+  const i2 = Math.round(SEG * cfg.bridgeBottom)
   const arc = []
   for (let i = i1; i >= 0; i--) arc.push(toGlobal(outer[i]))
-  for (let i = C.seg - 1; i >= i2; i--) arc.push(toGlobal(outer[i]))
+  for (let i = SEG - 1; i >= i2; i--) arc.push(toGlobal(outer[i]))
   const left = arc.map((p) => new THREE.Vector2(-p.x, p.y)).reverse()
 
   const shape = new THREE.Shape()
   shape.moveTo(arc[0].x, arc[0].y)
   arc.slice(1).forEach((p) => shape.lineTo(p.x, p.y))
-  shape.quadraticCurveTo(0, 0.34, left[0].x, left[0].y) // keyhole nose arch
+  shape.quadraticCurveTo(0, cfg.noseArch, left[0].x, left[0].y) // keyhole nose arch
   left.slice(1).forEach((p) => shape.lineTo(p.x, p.y))
   shape.quadraticCurveTo(0, arc[0].y + 0.01, arc[0].x, arc[0].y) // brow runs straight across the bridge
 
@@ -98,20 +117,20 @@ function buildClassic() {
   shape.holes.push(new THREE.Path(holeR), new THREE.Path(holeL))
 
   let front = new THREE.ExtrudeGeometry(shape, {
-    depth: C.depth,
+    depth: cfg.depth,
     bevelEnabled: true,
-    bevelThickness: C.bevel,
-    bevelSize: C.bevel * 0.85,
+    bevelThickness: cfg.bevel,
+    bevelSize: cfg.bevel * 0.85,
     bevelSegments: 5,
     curveSegments: 12,
   })
-  front.translate(0, 0, -C.depth / 2)
+  front.translate(0, 0, -cfg.depth / 2)
   front = smooth(bend(front, frontZ))
 
   // Lenses: sit in the rim groove, base-curved and following the wrap
   const lensGeo = (side) => {
     const pts = inner.map((p) => {
-      const g = toGlobal(classicRim(p).lerp(p, 0.75)) // tuck ~25% of the rim width into the groove
+      const g = toGlobal(rim(p).lerp(p, 0.75)) // tuck ~25% of the rim width into the groove
       return new THREE.Vector2(side * g.x, g.y)
     })
     let g = new THREE.ExtrudeGeometry(new THREE.Shape(side < 0 ? pts.reverse() : pts), {
@@ -124,28 +143,29 @@ function buildClassic() {
     })
     g.translate(0, 0, -0.006)
     g = bend(g, (x, y) => {
-      const dx = (x - side * C.cx) / 0.6
+      const dx = (x - side * cfg.cx) / 0.6
       const dy = y / 0.45
       return frontZ(x) + 0.008 + 0.045 * Math.max(0, 1 - dx * dx - dy * dy)
     })
-    return smooth(g)
+    return addGradient(smooth(g), cfg.gradient, -cfg.b, cfg.b)
   }
 
   // Hinge sits behind the widest point of the brow
   const hingeY = 0.2
   const hingeX = Math.max(...arc.filter((p) => p.y > 0.05 && p.y < 0.35).map((p) => p.x)) - 0.07
-  const hingeZ = frontZ(hingeX) - C.depth / 2 - 0.05
+  const hingeZ = frontZ(hingeX) - cfg.depth / 2 - 0.05
 
   // Flat acetate temple: side profile (x = length back, y = height), extruded to thickness
+  const h = cfg.templeH
   const profile = new THREE.Shape()
-  profile.moveTo(0, 0.085)
-  profile.lineTo(0.25, 0.085)
-  profile.quadraticCurveTo(0.9, 0.07, 1.6, 0.04)
-  profile.quadraticCurveTo(1.95, 0.03, 2.2, -0.3) // bends down over the ear
+  profile.moveTo(0, h)
+  profile.lineTo(0.25, h)
+  profile.quadraticCurveTo(0.9, h * 0.82, 1.6, h * 0.47)
+  profile.quadraticCurveTo(1.95, h * 0.35, 2.2, -0.3) // bends down over the ear
   profile.quadraticCurveTo(2.21, -0.38, 2.13, -0.37) // rounded tip
-  profile.quadraticCurveTo(1.88, -0.04, 1.6, -0.03)
-  profile.quadraticCurveTo(0.9, -0.035, 0.25, -0.08)
-  profile.lineTo(0, -0.08)
+  profile.quadraticCurveTo(1.88, -h * 0.47, 1.6, -h * 0.4)
+  profile.quadraticCurveTo(0.9, -h * 0.45, 0.25, -h * 0.94)
+  profile.lineTo(0, -h * 0.94)
   profile.closePath()
   let temple = new THREE.ExtrudeGeometry(profile, {
     depth: 0.045,
@@ -159,10 +179,18 @@ function buildClassic() {
   temple.rotateY(Math.PI / 2) // length now runs along -z
   temple = smooth(temple)
 
-  const endPiece = new RoundedBoxGeometry(0.12, 0.2, 0.16, 3, 0.04)
-  const rivet = new THREE.CylinderGeometry(0.024, 0.024, 0.02, 24)
+  const endPiece = new RoundedBoxGeometry(0.12, h * 2.2, 0.16, 3, 0.04)
   const screw = new THREE.CylinderGeometry(0.014, 0.014, 0.22, 12)
-  const rivetZ = frontZ(hingeX - 0.06) + C.depth / 2 + C.bevel
+  const surfaceZ = (x) => frontZ(x) + cfg.depth / 2 + cfg.bevel
+
+  // Front trim: long silver bar (hero) or round rivet (classic), following the wrap
+  const isBar = cfg.trim === 'bar'
+  const trimX = isBar ? hingeX + 0.005 : hingeX - 0.06
+  const trimY = isBar ? hingeY - 0.01 : 0.36
+  const trimGeo = isBar
+    ? new RoundedBoxGeometry(0.12, 0.024, 0.02, 2, 0.008)
+    : new THREE.CylinderGeometry(0.024, 0.024, 0.02, 24)
+  const trimRotation = (s) => (isBar ? [0, Math.atan(2 * cfg.wrap * s * trimX), 0] : [Math.PI / 2, 0, 0])
 
   const parts = [
     {
@@ -181,15 +209,19 @@ function buildClassic() {
   ]
 
   for (const s of [-1, 1]) {
+    const templeMeshes = [{ geometry: temple, mat: 'frame' }]
+    if (!isBar) {
+      templeMeshes.push({ geometry: trimGeo, mat: 'metal', position: [s * 0.04, 0.01, -0.2], rotation: [0, 0, Math.PI / 2] })
+    }
     parts.push(
       {
         key: `lens${s}`, meshes: [{ geometry: lensGeo(s), mat: 'lens' }],
         pos: [0, 0, 0], dir: [s * 0.55, 0.3, 1.6], rot: [-0.4, s * 0.8, 0], delay: 0.3,
-        labels: s > 0 ? [{ text: 'Polarized G-15 lens', pos: [C.cx + 0.1, -0.1, 0.1] }] : [],
+        labels: s > 0 ? [{ text: cfg.lensLabel, pos: [cfg.cx + 0.1, -0.1, 0.1] }] : [],
       },
       {
-        key: `rivet${s}`, meshes: [{ geometry: rivet, mat: 'metal', rotation: [Math.PI / 2, 0, 0] }],
-        pos: [s * (hingeX - 0.06), 0.36, rivetZ], dir: [s * 0.5, 1, 1], rot: [1, 0, 0], delay: 0.6,
+        key: `trim${s}`, meshes: [{ geometry: trimGeo, mat: 'metal', rotation: trimRotation(s) }],
+        pos: [s * trimX, trimY, surfaceZ(trimX) + 0.004], dir: [s * 0.5, 1, 1], rot: [1, 0, 0], delay: 0.6,
       },
       {
         key: `screw${s}`, meshes: [{ geometry: screw, mat: 'metal' }],
@@ -197,11 +229,7 @@ function buildClassic() {
         labels: s > 0 ? [{ text: '5-barrel steel hinge', pos: [0.05, 0.13, 0] }] : [],
       },
       {
-        key: `temple${s}`, temple: s,
-        meshes: [
-          { geometry: temple, mat: 'frame' },
-          { geometry: rivet, mat: 'metal', position: [s * 0.04, 0.01, -0.2], rotation: [0, 0, Math.PI / 2] },
-        ],
+        key: `temple${s}`, temple: s, meshes: templeMeshes,
         pos: [s * hingeX, hingeY, hingeZ], dir: [s * 1.3, -0.2, -0.3], rot: [0.15, 0, s * -0.25], delay: 0.4,
         labels: s > 0 ? [{ text: 'Flex temple arm', pos: [0.06, 0.06, -1.2] }] : [],
       }
@@ -278,6 +306,7 @@ function buildRimmed(style) {
     curveSegments: 1,
   })
   lens.translate(0, 0, -0.0075)
+  addGradient(lens, [0.5, 1], -s.b, s.b)
 
   const innerX = s.cx - s.a + 0.02
   const bridge = new THREE.TubeGeometry(
@@ -367,5 +396,6 @@ function buildRimmed(style) {
 }
 
 export function buildSunglasses(style) {
-  return style === 'classic' ? buildClassic() : buildRimmed(STYLES[style] ? style : 'bold')
+  if (ACETATE[style]) return buildAcetate(ACETATE[style])
+  return buildRimmed(STYLES[style] ? style : 'bold')
 }
