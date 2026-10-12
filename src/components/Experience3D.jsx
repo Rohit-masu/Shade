@@ -157,7 +157,7 @@ function Scene({ anim, stageRef, glowRef }) {
       </Environment>
 
       <group ref={mainRef}>
-        <Sunglasses style="wayfarer" frameMaterial={mainFrame} lensMaterial={mainLens} anim={anim} showLabels />
+        <Sunglasses style={lineup3d[0].style} frameMaterial={mainFrame} lensMaterial={mainLens} anim={anim} showLabels />
       </group>
 
       {extras.map((p, idx) => (
@@ -337,7 +337,7 @@ export default function Experience3D({ ready }) {
         </div>
 
         {/* Chapter progress rail */}
-        <nav className="hidden md:flex absolute z-20 right-8 top-1/2 -translate-y-1/2 flex-col gap-4 pointer-events-none">
+        <nav className={`hidden md:flex absolute z-20 right-8 top-1/2 -translate-y-1/2 flex-col gap-4 pointer-events-none transition-opacity duration-500 ${chapter === 3 ? "opacity-0" : ""}`}>
           {CHAPTERS.map((name, i) => (
             <div key={name} className={`flex items-center justify-end gap-3 text-[11px] font-mono uppercase tracking-widest transition-colors duration-500 ${i === chapter ? 'text-white' : 'text-zinc-600'}`}>
               <span>{name}</span>

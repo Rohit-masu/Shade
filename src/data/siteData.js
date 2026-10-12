@@ -24,7 +24,7 @@ export const themes3d = [
   {
     id: "amber",
     name: "Cinematic Amber",
-    frame: { color: "#1c140e", metalness: 0.15, roughness: 0.28 },
+    frame: { color: "#16110d", metalness: 0.1, roughness: 0.16 },
     lens: { color: "#e8a24a", metalness: 0.55, opacity: 0.82 },
     bg: "#140e08",
     accent: "#e8a24a",
@@ -48,7 +48,7 @@ export const themes3d = [
   {
     id: "emerald",
     name: "Forest Emerald",
-    frame: { color: "#0f2219", metalness: 0.2, roughness: 0.3 },
+    frame: { color: "#0f2219", metalness: 0.1, roughness: 0.18 },
     lens: { color: "#10b981", metalness: 0.85, opacity: 0.85 },
     bg: "#06120d",
     accent: "#10b981",
@@ -57,7 +57,10 @@ export const themes3d = [
 
 // Products that slide in on the 3D lineup carousel (Experience3D, chapter 4)
 export const lineup3d = [
-  { id: "green-wayfarer", style: "wayfarer", name: "Emerald Horizon", price: 3599 },
+  { id: "green-wayfarer", style: "classic", name: "Emerald Horizon", price: 3599 },
+  { id: "brown-tortoise", style: "bold", name: "Havana Tortoise", price: 3899,
+    frame: { color: "#4a2410", metalness: 0.1, roughness: 0.25 },
+    lens: { color: "#b4691f", metalness: 0.55, opacity: 0.85 } },
   { id: "gold-aviator", style: "aviator", name: "Aero Mirage Gold", price: 4199,
     frame: { color: "#d4af37", metalness: 1, roughness: 0.22 },
     lens: { color: "#7a3a16", metalness: 0.6, opacity: 0.85 } },
