@@ -22,20 +22,20 @@ export const hero = {
 // Colorways the 3D hero model morphs through while scrolling (Experience3D, chapter 2)
 export const themes3d = [
   {
+    id: "noir",
+    name: "Classic Noir",
+    frame: { color: "#17171b", metalness: 0.15, roughness: 0.14 },
+    lens: { color: "#5a6068", metalness: 0.7, opacity: 0.9 },
+    bg: "#120d08",
+    accent: "#e8a24a",
+  },
+  {
     id: "amber",
     name: "Cinematic Amber",
     frame: { color: "#16110d", metalness: 0.1, roughness: 0.16 },
     lens: { color: "#e8a24a", metalness: 0.55, opacity: 0.82 },
     bg: "#140e08",
     accent: "#e8a24a",
-  },
-  {
-    id: "obsidian",
-    name: "Matte Obsidian",
-    frame: { color: "#0c0c0e", metalness: 0.05, roughness: 0.75 },
-    lens: { color: "#3a3f47", metalness: 0.8, opacity: 0.9 },
-    bg: "#0b0c0f",
-    accent: "#cbd5e1",
   },
   {
     id: "gold",
@@ -58,6 +58,9 @@ export const themes3d = [
 // Products that slide in on the 3D lineup carousel (Experience3D, chapter 4)
 export const lineup3d = [
   { id: "green-wayfarer", style: "hero", name: "Emerald Horizon", price: 3599 },
+  { id: "amber-wayfarer", style: "urban", name: "Noir Wayfarer (Amber)", price: 3499,
+    frame: { color: "#100c09", metalness: 0.1, roughness: 0.14 },
+    lens: { color: "#e8a24a", metalness: 0.55, opacity: 0.85 } },
   { id: "black-wayfarer", style: "classic", name: "Obsidian Classic", price: 3299,
     frame: { color: "#0d0d0f", metalness: 0.1, roughness: 0.15 },
     lens: { color: "#4b5a4a", metalness: 0.7, opacity: 0.9 } },

@@ -12,6 +12,7 @@ const smoothstep = (a, b, v) => {
 }
 
 const hardwareMaterial = new THREE.MeshStandardMaterial({ color: '#e4e4e8', metalness: 1, roughness: 0.18 })
+const goldMaterial = new THREE.MeshStandardMaterial({ color: '#e0b66a', metalness: 1, roughness: 0.22 })
 
 /**
  * A pair of sunglasses split into individually animatable parts.
@@ -26,7 +27,7 @@ export default function Sunglasses({ style = 'classic', frameMaterial, lensMater
   const partRefs = useRef({})
   const foldRefs = useRef({})
   const labelRefs = useRef([])
-  const materials = { frame: frameMaterial, lens: lensMaterial, metal: hardwareMaterial }
+  const materials = { frame: frameMaterial, lens: lensMaterial, metal: hardwareMaterial, gold: goldMaterial }
 
   useFrame(() => {
     const a = anim?.current

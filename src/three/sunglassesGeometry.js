@@ -11,8 +11,8 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
  *   { key, meshes: [{ geometry, mat: 'frame'|'lens'|'metal', position?, rotation?, scale? }],
  *     pos, dir, rot, delay, mirror?, temple?: side, labels?: [{ text, pos }] }
  *
- * Styles: 'hero' (rectangular classic, matches public/hero-sunglasses.png),
- * 'classic' (Wayfarer-type), 'bold', 'aviator', 'round'.
+ * Styles: 'hero' (glossy classic, gold rivets), 'urban' (trendy rectangle,
+ * matches public/hero-sunglasses.png), 'classic' (Wayfarer-type), 'bold', 'aviator', 'round'.
  */
 
 const sgnPow = (v, p) => Math.sign(v) * Math.pow(Math.abs(v), p)
@@ -36,23 +36,31 @@ function bend(geometry, fn) {
 
 /* ================================================================== */
 /*  ACETATE — one-piece front, keyhole bridge, face-form wrap          */
-/*  'hero'    : rectangular classic from public/hero-sunglasses.png    */
+/*  'hero'    : glossy classic, flared brow corners, gold rivets        */
+/*  'urban'   : trendy rectangle from public/hero-sunglasses.png       */
 /*  'classic' : Wayfarer-type with a heavy brow                        */
 /* ================================================================== */
 const ACETATE = {
   hero: {
-    cx: 0.72, a: 0.52, b: 0.39, n: 3.8, // lens centre, half width/height, squareness
+    cx: 0.66, a: 0.52, b: 0.39, n: 3.2, // lens centre, half width/height, squareness
+    chinTaper: 0.18, chinTaperInner: 0.08, browRise: 0.06,
+    rimSide: 0.075, rimBrow: 0.12, wing: 0.12, depth: 0.055, bevel: 0.026, wrap: 0.035,
+    bridgeTop: 0.3, bridgeBottom: 0.505, noseArch: 0.22, templeH: 0.095, // low wrap, straight saddle bridge
+    trim: 'rivet', trimMat: 'gold', trimY: 0.28, gradient: [0.6, 1], lensLabel: 'Polarized smoke lens',
+  },
+  urban: {
+    cx: 0.72, a: 0.52, b: 0.39, n: 3.8,
     chinTaper: 0.14, chinTaperInner: 0.06, browRise: 0.03,
     rimSide: 0.055, rimBrow: 0.1, wing: 0.09, depth: 0.05, bevel: 0.024, wrap: 0.04,
     bridgeTop: 0.3, bridgeBottom: 0.53, noseArch: 0.3, templeH: 0.105,
-    trim: 'bar', gradient: [0.28, 1], lensLabel: 'Gradient polarized lens',
+    trim: 'bar', trimMat: 'metal', gradient: [0.28, 1], lensLabel: 'Gradient polarized lens',
   },
   classic: {
     cx: 0.7, a: 0.5, b: 0.35, n: 3.4,
     chinTaper: 0.26, chinTaperInner: 0.09, browRise: 0.07,
     rimSide: 0.065, rimBrow: 0.155, wing: 0, depth: 0.05, bevel: 0.026, wrap: 0.07,
     bridgeTop: 0.31, bridgeBottom: 0.545, noseArch: 0.34, templeH: 0.085,
-    trim: 'rivet', gradient: [0.6, 1], lensLabel: 'Polarized G-15 lens',
+    trim: 'rivet', trimMat: 'metal', trimY: 0.36, gradient: [0.6, 1], lensLabel: 'Polarized G-15 lens',
   },
 }
 const SEG = 160
@@ -186,7 +194,7 @@ function buildAcetate(cfg) {
   // Front trim: long silver bar (hero) or round rivet (classic), following the wrap
   const isBar = cfg.trim === 'bar'
   const trimX = isBar ? hingeX + 0.005 : hingeX - 0.06
-  const trimY = isBar ? hingeY - 0.01 : 0.36
+  const trimY = isBar ? hingeY - 0.01 : cfg.trimY
   const trimGeo = isBar
     ? new RoundedBoxGeometry(0.12, 0.024, 0.02, 2, 0.008)
     : new THREE.CylinderGeometry(0.024, 0.024, 0.02, 24)
@@ -211,7 +219,7 @@ function buildAcetate(cfg) {
   for (const s of [-1, 1]) {
     const templeMeshes = [{ geometry: temple, mat: 'frame' }]
     if (!isBar) {
-      templeMeshes.push({ geometry: trimGeo, mat: 'metal', position: [s * 0.04, 0.01, -0.2], rotation: [0, 0, Math.PI / 2] })
+      templeMeshes.push({ geometry: trimGeo, mat: cfg.trimMat, position: [s * 0.04, 0.01, -0.2], rotation: [0, 0, Math.PI / 2] })
     }
     parts.push(
       {
@@ -220,7 +228,7 @@ function buildAcetate(cfg) {
         labels: s > 0 ? [{ text: cfg.lensLabel, pos: [cfg.cx + 0.1, -0.1, 0.1] }] : [],
       },
       {
-        key: `trim${s}`, meshes: [{ geometry: trimGeo, mat: 'metal', rotation: trimRotation(s) }],
+        key: `trim${s}`, meshes: [{ geometry: trimGeo, mat: cfg.trimMat, rotation: trimRotation(s) }],
         pos: [s * trimX, trimY, surfaceZ(trimX) + 0.004], dir: [s * 0.5, 1, 1], rot: [1, 0, 0], delay: 0.6,
       },
       {

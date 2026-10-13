@@ -12,6 +12,9 @@ import { site, themes3d, lineup3d } from '../data/siteData'
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
 
+// Lightformers are one-sided planes; aim them at the model
+const faceOrigin = (self) => self.lookAt(0, 0, 0)
+
 const CHAPTERS = ['Assemble', 'Colorways', 'Anatomy', 'Lineup']
 
 const clamp01 = (v) => Math.min(Math.max(v, 0), 1)
@@ -28,6 +31,7 @@ function makeFrameMaterial(cfg) {
     roughness: cfg?.roughness ?? 0.3,
     clearcoat: 1,
     clearcoatRoughness: 0.12,
+    envMapIntensity: 1.6,
   })
 }
 
@@ -35,7 +39,7 @@ function makeLensMaterial(cfg) {
   return new THREE.MeshPhysicalMaterial({
     color: cfg?.color ?? '#333',
     metalness: cfg?.metalness ?? 0.7,
-    roughness: 0.04,
+    roughness: 0.2, // softens hard softbox reflections on the lens
     transparent: true,
     opacity: cfg?.opacity ?? 0.85,
     clearcoat: 1,
@@ -133,7 +137,7 @@ function Scene({ anim, stageRef, glowRef }) {
       const obj = extraRefs.current[idx]
       if (!obj) return
       const i = idx + 1
-      const enter = smoothstep(0, 1, clamp01(L * 1.5 - idx * 0.35))
+      const enter = smoothstep(0, 1, clamp01(L * 1.6 - (idx * 0.6) / extras.length)) // stagger scales with item count
       const s = slot(i)
       obj.visible = enter > 0.001
       obj.position.x = s.x + (1 - enter) * viewport.width
@@ -150,12 +154,15 @@ function Scene({ anim, stageRef, glowRef }) {
       <spotLight position={[-4, 2, 3]} intensity={30} angle={0.5} penumbra={1} color="#ffd8a8" />
 
       {/* Studio reflections built from light panels — no HDR download needed */}
-      <Environment resolution={256} frames={1}>
+      <Environment resolution={512} frames={1}>
         <Lightformer form="rect" intensity={3} position={[0, 4, -2]} scale={[10, 1.5, 1]} />
         {/* Cinematic rim: warm amber from the left, cool blue from the right (as in hero-sunglasses.png) */}
         <Lightformer form="rect" intensity={3} color="#ff9a3c" position={[-5, 1, 1]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
-        <Lightformer form="rect" intensity={3} color="#4d7dff" position={[5, 1, 1]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
+        <Lightformer form="rect" intensity={2} color="#4d7dff" position={[5, 1, 1]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
         <Lightformer form="ring" intensity={4} position={[0, 0, 5]} scale={2} />
+        {/* Softbox strips: long white streaks across glossy black acetate */}
+        <Lightformer form="rect" intensity={1.8} position={[-2, 2.5, 4]} scale={[5, 0.35, 1]} onUpdate={faceOrigin} />
+        <Lightformer form="rect" intensity={1.5} position={[2.5, -1.5, 4]} scale={[4, 0.25, 1]} onUpdate={faceOrigin} />
       </Environment>
 
       <group ref={mainRef}>
@@ -221,14 +228,14 @@ export default function Experience3D({ ready }) {
         .to(q('.chapter-color'), { autoAlpha: 0, x: -40, duration: 0.3 }, 4.4)
 
       // 03 — Anatomy: centre stage, explode into parts, labels, snap back together
-        .to(a, { x: 0, y: -0.2, scale: 0.85, rotY: `+=${0.7}`, rotX: 0.35, ease: 'power2.inOut', duration: 0.8 }, 4.6)
+        .to(a, { x: 0, y: -0.2, scale: 0.85, rotY: `-=${0.2}`, rotX: 0.35, ease: 'power2.inOut', duration: 0.8 }, 4.6)
         .fromTo(q('.chapter-anatomy'), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 4.9)
         .to(a, { explode: 0.8, ease: 'power2.inOut', duration: 1 }, 5.2)
         .to(a, { explode: 0, ease: 'power2.inOut', duration: 0.8 }, 6.5)
         .to(q('.chapter-anatomy'), { autoAlpha: 0, y: -30, duration: 0.3 }, 7.1)
 
       // 04 — Lineup: hero pair shifts into the carousel, other products slide in
-        .to(a, { lineup: 1, rotY: `-=${0.7 + 0.5}`, ease: 'power2.inOut', duration: 1 }, 7.4)
+        .to(a, { lineup: 1, rotY: `-=${0.3}`, ease: 'power2.inOut', duration: 1 }, 7.4)
         .fromTo(q('.chapter-lineup'), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 7.9)
         .to(a, { focus: lineup3d.length - 1, ease: 'power1.inOut', duration: 1.8 }, 8.4)
         .to({}, { duration: 0.3 }) // short hold before the section scrolls away
