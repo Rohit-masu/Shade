@@ -1,124 +1,157 @@
-import React from 'react'
-import { MessageCircle, ArrowUp, Sparkles } from 'lucide-react'
+import React, { useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
+import { ArrowUp, ArrowUpRight } from 'lucide-react'
 import { site } from '../data/siteData'
 
+gsap.registerPlugin(ScrollTrigger, useGSAP)
+
+const WORDMARK = 'VANTA'
+
+const explore = [
+  { label: 'Collection', href: '#collection' },
+  { label: 'Technology', href: '#technology' },
+  { label: 'Lookbook', href: '#lookbook' },
+  { label: 'Store', href: '#store' },
+]
+
+/**
+ * Closing CTA, plain-text link columns and a full-width wordmark whose letters
+ * rise out of the bottom edge as the footer scrolls into view.
+ */
 export default function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const rootRef = useRef(null)
+
+  useGSAP(
+    () => {
+      const q = gsap.utils.selector(rootRef)
+      gsap.from(q('.footer-reveal'), {
+        y: 40,
+        opacity: 0,
+        duration: 0.9,
+        stagger: 0.08,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: rootRef.current, start: 'top 80%', once: true },
+      })
+      gsap.fromTo(
+        q('.wordmark-letter'),
+        { yPercent: 100 },
+        {
+          yPercent: 0,
+          stagger: 0.06,
+          ease: 'none',
+          scrollTrigger: { trigger: q('.wordmark')[0], start: 'top bottom', end: 'bottom bottom', scrub: 0.6 },
+        }
+      )
+    },
+    { scope: rootRef }
+  )
+
+  const whatsappUrl = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(
+    `Hello ${site.brand}, I would like to inquire about your eyewear collection.`
+  )}`
+  const linkClass = 'group inline-flex items-center gap-1.5 text-zinc-300 hover:text-white transition-colors'
 
   return (
-    <footer className="relative z-20 bg-[#0d0d0f] border-t border-white/5 py-16 text-zinc-400 grain-overlay">
+    <footer ref={rootRef} className="relative z-20 bg-[#0d0d0f] border-t border-white/5 pt-24 md:pt-32 text-zinc-400 overflow-hidden grain-overlay">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-14 border-b border-white/5">
-          {/* Brand Info */}
-          <div className="md:col-span-5">
-            <a
-              href="#"
-              className="inline-flex items-center gap-2.5 text-2xl font-bold font-display text-white mb-4"
-            >
-              <span className="w-2.5 h-2.5 rounded-full bg-[#e8a24a] shadow-[0_0_10px_#e8a24a]" />
-              <span>{site.brand}</span>
-            </a>
-            <p className="text-sm text-zinc-400 leading-relaxed max-w-sm mb-6">
-              Precision-crafted dark luxury eyewear. Polarized lenses and hand-finished Italian bio-acetate frames designed for timeless clarity.
+        {/* Closing CTA */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-16 md:pb-20 border-b border-white/10">
+          <h2 className="footer-reveal text-[clamp(2.4rem,6vw,5.5rem)] font-display font-extrabold text-white leading-[0.95] tracking-tight">
+            Find your pair.
+            <br />
+            <span className="text-[#e8a24a]">We&rsquo;ll fit it.</span>
+          </h2>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-reveal group self-start md:self-auto inline-flex items-center gap-3 rounded-full bg-[#e8a24a] text-black font-semibold text-sm pl-7 pr-2 py-2 hover:bg-amber-300 transition-colors"
+          >
+            Chat on WhatsApp
+            <span className="w-9 h-9 rounded-full bg-black text-[#e8a24a] flex items-center justify-center transition-transform duration-300 group-hover:rotate-45">
+              <ArrowUpRight className="w-4 h-4" />
+            </span>
+          </a>
+        </div>
+
+        {/* Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-10 py-14 md:py-16 text-sm">
+          <div className="footer-reveal col-span-2 md:col-span-4">
+            <p className="text-white font-display font-bold text-xl">{site.brand}</p>
+            <p className="mt-3 max-w-xs leading-relaxed">
+              Hand-finished acetate frames and polarized lenses, designed for Indian sun.
             </p>
-            <div className="flex items-center gap-3">
-              <a
-                href={site.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#e8a24a] hover:text-black border border-white/10 flex items-center justify-center transition-all duration-300"
-              >
-                <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                </svg>
-              </a>
-              <a
-                href={`https://wa.me/${site.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="WhatsApp"
-                className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#e8a24a] hover:text-black border border-white/10 flex items-center justify-center transition-all duration-300"
-              >
-                <MessageCircle className="w-4 h-4" />
-              </a>
-            </div>
           </div>
 
-          {/* Navigation Links */}
-          <div className="md:col-span-3">
-            <h4 className="text-xs font-mono uppercase text-white tracking-widest mb-4">
-              Explore Collection
-            </h4>
-            <ul className="space-y-2.5 text-sm">
+          <div className="footer-reveal md:col-span-2">
+            <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-zinc-600 mb-4">Explore</p>
+            <ul className="space-y-2.5">
+              {explore.map((l) => (
+                <li key={l.href}>
+                  <a href={l.href} className={linkClass}>
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="footer-reveal md:col-span-3">
+            <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-zinc-600 mb-4">Studio</p>
+            <p className="text-zinc-300 leading-relaxed">{site.address}</p>
+            <p className="mt-2">{site.hours}</p>
+          </div>
+
+          <div className="footer-reveal md:col-span-3">
+            <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-zinc-600 mb-4">Contact</p>
+            <ul className="space-y-2.5">
               <li>
-                <a href="#collection" className="hover:text-white transition-colors">
-                  Noir Wayfarer Series
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  WhatsApp
+                  <ArrowUpRight className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </a>
               </li>
               <li>
-                <a href="#collection" className="hover:text-white transition-colors">
-                  Aero Mirage Titanium
-                </a>
-              </li>
-              <li>
-                <a href="#collection" className="hover:text-white transition-colors">
-                  Komorebi Wireframes
-                </a>
-              </li>
-              <li>
-                <a href="#technology" className="hover:text-white transition-colors">
-                  Polarized Optics Engine
+                <a href={site.instagram} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  Instagram
+                  <ArrowUpRight className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </a>
               </li>
             </ul>
           </div>
-
-          {/* Newsletter / Studio Status */}
-          <div className="md:col-span-4">
-            <h4 className="text-xs font-mono uppercase text-white tracking-widest mb-4">
-              Private Allocation Drop
-            </h4>
-            <p className="text-xs text-zinc-400 mb-4">
-              Subscribe to receive exclusive access codes for limited batch releases.
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#e8a24a]"
-              />
-              <button className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-[#e8a24a] hover:text-black text-xs font-semibold text-white transition-all">
-                Join
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* Bottom Credits & Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 font-mono">
-          <div>
+        {/* Credits */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-8 text-xs font-mono text-zinc-500">
+          <span>
             &copy; {new Date().getFullYear()} {site.brand}. All optical designs reserved.
-          </div>
-
-          <div className="flex items-center gap-6">
-            <span className="text-zinc-400">
-              Website by <span className="text-[#e8a24a] font-semibold">SanPuRO</span>
+          </span>
+          <span className="flex items-center gap-6">
+            <span>
+              Website by <span className="text-[#e8a24a]">SanPuRO</span>
             </span>
-
             <button
-              onClick={scrollToTop}
-              className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="inline-flex items-center gap-1.5 text-zinc-300 hover:text-white transition-colors"
             >
-              <span>TOP</span>
-              <ArrowUp className="w-3.5 h-3.5" />
+              Top <ArrowUp className="w-3.5 h-3.5" />
             </button>
-          </div>
+          </span>
         </div>
+      </div>
+
+      {/* Full-width wordmark rising out of the bottom edge */}
+      <div className="wordmark flex justify-center overflow-hidden select-none pointer-events-none" aria-hidden="true">
+        {WORDMARK.split('').map((ch, i) => (
+          <span
+            key={i}
+            className="wordmark-letter inline-block font-accent font-black leading-[0.78] text-[21vw] text-transparent bg-clip-text bg-gradient-to-b from-[#e8a24a] via-[#e8a24a]/50 to-transparent"
+          >
+            {ch}
+          </span>
+        ))}
       </div>
     </footer>
   )
