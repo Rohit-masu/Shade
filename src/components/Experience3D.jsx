@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useRef, useState } from 'react'
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
@@ -155,6 +155,14 @@ export default function Experience3D({ ready }) {
   const [chapter, setChapter] = useState(0)
   const [themeIdx, setThemeIdx] = useState(0)
   const [focusIdx, setFocusIdx] = useState(0)
+  const [inView, setInView] = useState(true)
+
+  // Stop rendering the WebGL scene once the section has scrolled away
+  useEffect(() => {
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting))
+    io.observe(wrapRef.current)
+    return () => io.disconnect()
+  }, [])
 
   // Scroll-scrubbed choreography (timeline units ≈ "beats", total 10)
   useGSAP(
@@ -235,7 +243,7 @@ export default function Experience3D({ ready }) {
           </span>
         </div>
 
-        <Canvas className="!absolute inset-0" dpr={[1, 1.75]} camera={{ position: [0, 0.15, 6], fov: 35 }} gl={{ antialias: true }} shadows>
+        <Canvas className="!absolute inset-0" frameloop={inView ? 'always' : 'never'} dpr={[1, 1.75]} camera={{ position: [0, 0.15, 6], fov: 35 }} gl={{ antialias: true }} shadows>
           <Suspense fallback={null}>
             <Scene anim={anim} stageRef={stageRef} glowRef={glowRef} />
           </Suspense>
