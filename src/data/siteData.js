@@ -10,15 +10,6 @@ export const site = {
   mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.8234857413665!2d72.8288591!3d19.0605051!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c96c429c3d4f%3A0xb35515c0e70b3d64!2sBandra%20West%2C%20Mumbai!5e0!3m2!1sen!2sin!4v1700000000000",
 };
 
-export const hero = {
-  framePath: "/frames/frame_",
-  frameCount: 120,
-  frameExt: "webp",
-  padLength: 4,
-  sampleVideo: "/sunglasses-spin.mp4",
-  fallbackImage: "/hero-sunglasses.png",
-};
-
 // Colorways the 3D hero model morphs through while scrolling (Experience3D, chapter 2)
 export const themes3d = [
   {
@@ -55,48 +46,16 @@ export const themes3d = [
   },
 ];
 
-// Products that slide in on the 3D lineup carousel (Experience3D, chapter 4)
-export const lineup3d = [
-  { id: "green-wayfarer", style: "hero", name: "Emerald Horizon", price: 3599 },
-  { id: "amber-wayfarer", style: "urban", name: "Noir Wayfarer (Amber)", price: 3499,
-    frame: { color: "#100c09", metalness: 0.1, roughness: 0.14 },
-    lens: { color: "#e8a24a", metalness: 0.55, opacity: 0.85 } },
-  { id: "black-wayfarer", style: "classic", name: "Obsidian Classic", price: 3299,
-    frame: { color: "#0d0d0f", metalness: 0.1, roughness: 0.15 },
-    lens: { color: "#4b5a4a", metalness: 0.7, opacity: 0.9 } },
-  { id: "brown-tortoise", style: "bold", name: "Havana Tortoise", price: 3899,
-    frame: { color: "#4a2410", metalness: 0.1, roughness: 0.25 },
-    lens: { color: "#b4691f", metalness: 0.55, opacity: 0.85 } },
-  { id: "gold-aviator", style: "aviator", name: "Aero Mirage Gold", price: 4199,
-    frame: { color: "#d4af37", metalness: 1, roughness: 0.22 },
-    lens: { color: "#7a3a16", metalness: 0.6, opacity: 0.85 } },
-  { id: "silver-round", style: "round", name: "Komorebi Round", price: 3699,
-    frame: { color: "#c0c6cf", metalness: 1, roughness: 0.2 },
-    lens: { color: "#1e3a5f", metalness: 0.85, opacity: 0.85 } },
+// Count-up numbers in the Highlights section
+export const stats = [
+  { value: 100, suffix: "%", label: "UVA + UVB blocked", note: "UV400 certified on every lens" },
+  { value: 99.9, suffix: "%", decimals: 1, label: "Glare eliminated", note: "Tri-layer polarized filter" },
+  { value: 19, suffix: "g", label: "Lightest frame", note: "Komorebi Round, steel wire" },
+  { value: 365, suffix: "", label: "Days of warranty", note: "Free tune-ups & hinge care" },
 ];
 
-export const features = [
-  {
-    icon: "ShieldCheck",
-    title: "100% UV400 Defense",
-    text: "Engineered optical barrier blocking 100% of harmful UVA and UVB solar radiation.",
-  },
-  {
-    icon: "Eye",
-    title: "Precision Polarized",
-    text: "Micro-layered optical filters eradicate reflective glare from roads, glass, and water.",
-  },
-  {
-    icon: "Feather",
-    title: "Lightweight Bio-Acetate",
-    text: "Hand-sculpted Italian acetate frame calibrated for effortless all-day ergonomic wear.",
-  },
-  {
-    icon: "Award",
-    title: "1-Year Full Warranty",
-    text: "Complimentary frame tune-ups, hinge adjustments, and lens scratch replacement policy.",
-  },
-];
+// Words scrolling in the Highlights marquee
+export const marqueeWords = ["UV400", "Polarized", "Bio-Acetate", "Japanese Hinges", "Hand-Polished", "Made for India"];
 
 export const products = [
   {
@@ -109,6 +68,7 @@ export const products = [
     swatch: "#e8a24a",
     glowColor: "rgba(232, 162, 74, 0.45)",
     image: "/products/amber-wayfarer.png",
+    model: { style: "urban", frame: { color: "#100c09", metalness: 0.1, roughness: 0.14 }, lens: { color: "#e8a24a", metalness: 0.55, opacity: 0.85 } },
     description: "Classic wayfarer silhouette with high-contrast amber tint lenses and precision Japanese hinges.",
     specs: { frame: "Hand-carved Bio-Acetate", lens: "HD Polarized Amber", uv: "UV400 Certified", weight: "28g" },
   },
@@ -122,6 +82,7 @@ export const products = [
     swatch: "#222226",
     glowColor: "rgba(255, 255, 255, 0.3)",
     image: "/products/black-wayfarer.png",
+    model: { style: "classic", frame: { color: "#0d0d0f", metalness: 0.1, roughness: 0.15 }, lens: { color: "#4b5a4a", metalness: 0.7, opacity: 0.9 } },
     description: "Stealth midnight profile with glare-eradicating neutral charcoal lenses. Timeless bold geometry.",
     specs: { frame: "Italian Dark Acetate", lens: "G-15 Neutral Gray", uv: "UV400 Category 3", weight: "29g" },
   },
@@ -135,6 +96,7 @@ export const products = [
     swatch: "#d4af37",
     glowColor: "rgba(212, 175, 55, 0.42)",
     image: "/products/gold-aviator.png",
+    model: { style: "aviator", frame: { color: "#d4af37", metalness: 1, roughness: 0.22 }, lens: { color: "#7a3a16", metalness: 0.6, opacity: 0.85 } },
     description: "Aviation heritage redefined. Aerospace-grade lightweight monel alloy with sunset bronze gradient lenses.",
     specs: { frame: "Monel Titanium Alloy", lens: "Gradient Sunset Lens", uv: "UV400 High Contrast", weight: "22g" },
   },
@@ -148,6 +110,7 @@ export const products = [
     swatch: "#94a3b8",
     glowColor: "rgba(148, 163, 184, 0.4)",
     image: "/products/silver-round.png",
+    model: { style: "round", frame: { color: "#c0c6cf", metalness: 1, roughness: 0.2 }, lens: { color: "#1e3a5f", metalness: 0.85, opacity: 0.85 } },
     description: "Architectural circular wireframe with crystal chromatic clarity and anti-reflective internal coating.",
     specs: { frame: "Stainless Steel Wire", lens: "Sapphire Anti-Reflective", uv: "UV400 Filter", weight: "19g" },
   },
@@ -161,6 +124,7 @@ export const products = [
     swatch: "#78350f",
     glowColor: "rgba(180, 83, 9, 0.4)",
     image: "/products/brown-tortoise.png",
+    model: { style: "bold", frame: { color: "#4a2410", metalness: 0.1, roughness: 0.25 }, lens: { color: "#b4691f", metalness: 0.55, opacity: 0.85 } },
     description: "Warm organic tortoiseshell marbling infused with polarized honey tint lenses for golden hour warmth.",
     specs: { frame: "Mazzucchelli Acetate", lens: "Warm Amber Polarized", uv: "UV400 Shield", weight: "31g" },
   },
@@ -174,10 +138,24 @@ export const products = [
     swatch: "#059669",
     glowColor: "rgba(16, 185, 129, 0.4)",
     image: "/products/green-wayfarer.png",
+    model: { style: "hero", frame: { color: "#0f2219", metalness: 0.1, roughness: 0.18 }, lens: { color: "#10b981", metalness: 0.85, opacity: 0.85 } },
     description: "Vibrant botanical emerald mirrored lenses that deliver exceptional glare reduction for open waters and driving.",
     specs: { frame: "Reinforced TR90 Polymer", lens: "Emerald Polarized Mirror", uv: "UV400 Total Block", weight: "25g" },
   },
 ];
+
+// Products on the 3D lineup carousel (Experience3D, chapter 4); the first one is the hero pair
+export const lineup3d = [
+  "green-wayfarer",
+  "amber-wayfarer",
+  "black-wayfarer",
+  "brown-tortoise",
+  "gold-aviator",
+  "silver-round",
+].map((id) => {
+  const p = products.find((product) => product.id === id);
+  return { id, name: p.name, price: p.price, ...p.model };
+});
 
 export const lensTypes = [
   {

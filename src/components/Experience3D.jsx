@@ -1,6 +1,6 @@
 import React, { Suspense, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ContactShadows, Environment, Lightformer } from '@react-three/drei'
+import { ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -8,12 +8,11 @@ import { SplitText } from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 import { ArrowDown, Sparkles } from 'lucide-react'
 import Sunglasses from '../three/Sunglasses'
+import { StudioLights } from '../three/studio'
+import { makeFrameMaterial, makeLensMaterial } from '../three/materials'
 import { site, themes3d, lineup3d } from '../data/siteData'
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
-
-// Lightformers are one-sided planes; aim them at the model
-const faceOrigin = (self) => self.lookAt(0, 0, 0)
 
 const CHAPTERS = ['Assemble', 'Colorways', 'Anatomy', 'Lineup']
 
@@ -22,30 +21,6 @@ const lerp = THREE.MathUtils.lerp
 const smoothstep = (a, b, v) => {
   const t = clamp01((v - a) / (b - a))
   return t * t * (3 - 2 * t)
-}
-
-function makeFrameMaterial(cfg) {
-  return new THREE.MeshPhysicalMaterial({
-    color: cfg?.color ?? '#111',
-    metalness: cfg?.metalness ?? 0.2,
-    roughness: cfg?.roughness ?? 0.3,
-    clearcoat: 1,
-    clearcoatRoughness: 0.12,
-    envMapIntensity: 1.6,
-  })
-}
-
-function makeLensMaterial(cfg) {
-  return new THREE.MeshPhysicalMaterial({
-    color: cfg?.color ?? '#333',
-    metalness: cfg?.metalness ?? 0.7,
-    roughness: 0.2, // softens hard softbox reflections on the lens
-    transparent: true,
-    opacity: cfg?.opacity ?? 0.85,
-    clearcoat: 1,
-    envMapIntensity: 1.8,
-    vertexColors: true, // lens geometry carries a top-dark → bottom-light gradient
-  })
 }
 
 /* ------------------------------------------------------------------ */
@@ -149,21 +124,7 @@ function Scene({ anim, stageRef, glowRef }) {
 
   return (
     <>
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[3, 5, 4]} intensity={1.6} castShadow />
-      <spotLight position={[-4, 2, 3]} intensity={30} angle={0.5} penumbra={1} color="#ffd8a8" />
-
-      {/* Studio reflections built from light panels — no HDR download needed */}
-      <Environment resolution={512} frames={1}>
-        <Lightformer form="rect" intensity={3} position={[0, 4, -2]} scale={[10, 1.5, 1]} />
-        {/* Cinematic rim: warm amber from the left, cool blue from the right (as in hero-sunglasses.png) */}
-        <Lightformer form="rect" intensity={3} color="#ff9a3c" position={[-5, 1, 1]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
-        <Lightformer form="rect" intensity={2} color="#4d7dff" position={[5, 1, 1]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
-        <Lightformer form="ring" intensity={4} position={[0, 0, 5]} scale={2} />
-        {/* Softbox strips: long white streaks across glossy black acetate */}
-        <Lightformer form="rect" intensity={1.8} position={[-2, 2.5, 4]} scale={[5, 0.35, 1]} onUpdate={faceOrigin} />
-        <Lightformer form="rect" intensity={1.5} position={[2.5, -1.5, 4]} scale={[4, 0.25, 1]} onUpdate={faceOrigin} />
-      </Environment>
+      <StudioLights />
 
       <group ref={mainRef}>
         <Sunglasses style={lineup3d[0].style} frameMaterial={mainFrame} lensMaterial={mainLens} anim={anim} showLabels />
@@ -281,13 +242,13 @@ export default function Experience3D({ ready }) {
         </Canvas>
 
         {/* 01 — Hero copy */}
-        <div className="hero-copy absolute inset-x-0 bottom-0 z-20 px-6 md:px-12 pb-10 md:pb-14 flex flex-col md:flex-row md:items-end justify-between gap-6 pointer-events-none">
+        <div className="hero-copy absolute inset-x-0 bottom-0 z-20 px-6 md:px-12 pb-[9vh] md:pb-[13vh] flex flex-col md:flex-row md:items-end justify-between gap-6 pointer-events-none">
           <div className="max-w-3xl">
             <div className="hero-fade inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-5 backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 text-[var(--theme-accent)]" />
               <span className="text-xs uppercase tracking-[0.25em] text-zinc-300 font-mono">New 2026 Architectural Drop</span>
             </div>
-            <h1 ref={headlineRef} className="invisible text-[2.2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black font-display tracking-tight text-white leading-[1.02] [perspective:600px]">
+            <h1 ref={headlineRef} className="invisible text-[clamp(2rem,min(9vw,8vh),4.75rem)] font-black font-display tracking-tight text-white leading-[1.02] [perspective:600px]">
               {site.tagline}
             </h1>
             <p className="hero-fade text-base md:text-lg text-zinc-400 mt-4 max-w-md">{site.subtitle}</p>

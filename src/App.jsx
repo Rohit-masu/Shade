@@ -7,8 +7,8 @@ import CustomCursor from './components/CustomCursor'
 import Loader from './components/Loader'
 import Navbar from './components/Navbar'
 import Experience3D from './components/Experience3D'
-import FeatureStrip from './components/FeatureStrip'
-import ProductShowcase from './components/ProductShowcase'
+import Highlights from './components/Highlights'
+import Collection3D from './components/Collection3D'
 import LensTech from './components/LensTech'
 import Lookbook from './components/Lookbook'
 import Testimonials from './components/Testimonials'
@@ -44,11 +44,11 @@ export default function App() {
       {/* Scroll-driven 3D experience: assemble → colorways → anatomy → lineup */}
       <Experience3D ready={loaderComplete} />
 
-      {/* Value Proposition Feature Strip */}
-      <FeatureStrip />
+      {/* Scroll-velocity marquee + count-up stats */}
+      <Highlights />
 
-      {/* Interactive 3D Product Showcase & Variant Switcher */}
-      <ProductShowcase />
+      {/* Interactive 3D collection: drag-to-rotate stage + product index */}
+      <Collection3D />
 
       {/* Optical Lens Technology with Before/After Glare Slider */}
       <LensTech />
